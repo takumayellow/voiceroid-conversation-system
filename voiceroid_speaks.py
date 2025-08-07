@@ -55,13 +55,10 @@ def send_request(msg_q: str) -> requests.Response:
         "uid": UID,
     }
     return requests.post(url, headers={}, json=payload)
-
-
 def get_answer_msg(msg_q: str) -> str:
     """Fetch the best response utterance for the given message."""
     response = send_request(msg_q)
-   response_json = response.json()
-   #
+    response_json = response.json()
     try:
         return response_json["bestResponse"]["utterance"]
     except KeyError:
@@ -77,7 +74,6 @@ def get_answer_msg(msg_q: str) -> str:
                 return response_json["utterance"]
         # If nothing matches, raise a descriptive error
         raise KeyError("Utterance not found in MEBO API response")
-
 
 def main() -> None:
     """Entry point. Read CLI args, query MEBO and speak the answer."""

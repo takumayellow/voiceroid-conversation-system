@@ -60,8 +60,23 @@ def send_request(msg_q: str) -> requests.Response:
 def get_answer_msg(msg_q: str) -> str:
     """Fetch the best response utterance for the given message."""
     response = send_request(msg_q)
-    response_json = response.json()
-    return response_json["bestResponse"]["utterance"]
+   response_json = response.json()
+   #
+    try:
+        return response_json["bestResponse"]["utterance"]
+    except KeyError:
+        # Fallback for different response structures
+        if isinstance(response_json, dict):
+            # Check if 'results' contains utterances
+            if response_json.get("results"):
+                first_result = response_json["results"][0]
+                if isinstance(first_result, dict) and first_result.get("utterance"):
+                    return first_result["utterance"]
+            # Check if 'utterance' is directly available
+            if response_json.get("utterance"):
+                return response_json["utterance"]
+        # If nothing matches, raise a descriptive error
+        raise KeyError("Utterance not found in MEBO API response")
 
 
 def main() -> None:
